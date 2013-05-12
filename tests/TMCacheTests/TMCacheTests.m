@@ -123,6 +123,54 @@ NSTimeInterval TMCacheTestBlockTimeout = 5.0;
     STAssertNil(object, @"object was not removed");
 }
 
+- (void)testObjectProtect
+{
+    NSString *key = @"key";
+    dispatch_semaphore_t semaphoreProtect = dispatch_semaphore_create(0);
+    
+    [self.cache setObject:[self image] forKey:key];
+    
+    [self.cache.diskCache addProtectionForKey:key block:^(TMDiskCache *cache, NSString *key, id<NSCoding> object, NSURL *fileURL) {
+        dispatch_semaphore_signal(semaphoreProtect);
+    }];
+    
+    dispatch_semaphore_wait(semaphoreProtect, [self timeout]);
+    
+    dispatch_semaphore_t semaphoreRemove = dispatch_semaphore_create(0);
+    
+    [self.cache removeObjectForKey:key block:^(TMCache *cache, NSString *key, id object) {
+        dispatch_semaphore_signal(semaphoreRemove);
+    }];
+    
+    dispatch_semaphore_wait(semaphoreRemove, [self timeout]);
+    
+    id object = [self.cache objectForKey:key];
+    
+    STAssertNotNil(object, @"protected object was removed");
+    
+    dispatch_semaphore_t semaphoreUnprotect = dispatch_semaphore_create(0);
+    
+    [self.cache setObject:[self image] forKey:key];
+    
+    [self.cache.diskCache removeProtectionForKey:key block:^(TMDiskCache *cache, NSString *key, id<NSCoding> object, NSURL *fileURL) {
+        dispatch_semaphore_signal(semaphoreUnprotect);
+    }];
+    
+    dispatch_semaphore_wait(semaphoreUnprotect, [self timeout]);
+    
+    dispatch_semaphore_t semaphoreRemove2 = dispatch_semaphore_create(0);
+    
+    [self.cache removeObjectForKey:key block:^(TMCache *cache, NSString *key, id object) {
+        dispatch_semaphore_signal(semaphoreRemove2);
+    }];
+    
+    dispatch_semaphore_wait(semaphoreRemove2, [self timeout]);
+    
+    object = [self.cache objectForKey:key];
+    
+    STAssertNil(object, @"object was not removed");
+}
+
 - (void)testMemoryCost
 {
     NSString *key1 = @"key1";

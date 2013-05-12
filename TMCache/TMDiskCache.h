@@ -186,15 +186,6 @@ typedef void (^TMDiskCacheObjectBlock)(TMDiskCache *cache, NSString *key, id <NS
  @param key The key associated with the object to be protected.
  @param block A block to be executed serially after the object has been protected, or nil.
  */
-- (void)protectObjectForKey:(NSString *)key block:(TMDiskCacheObjectBlock)block;
-
-/**
- Protects the object in the cache for the specified key. This method returns immediately and executes the
- passed block as soon as the object has been stored.
- 
- @param key The key associated with the object to be protected.
- @param block A block to be executed serially after the object has been protected, or nil.
- */
 - (void)addProtectionForKey:(NSString *)key block:(TMDiskCacheObjectBlock)block;
 
 /**
@@ -284,6 +275,22 @@ typedef void (^TMDiskCacheObjectBlock)(TMDiskCache *cache, NSString *key, id <NS
  @param key A key to associate with the object. This string will be copied.
  */
 - (void)setObject:(id <NSCoding>)object forKey:(NSString *)key;
+
+/**
+ Protects the object in the cache for the specified key. This method blocks the calling thread until
+ the object has been stored.
+ 
+ @param key The key associated with the object to be protected.
+ */
+- (void)protectObjectForKey:(NSString *)key;
+
+/**
+ Protects the object in the cache for the specified key. This method blocks the calling thread until
+ the object has been stored.
+ 
+ @param key The key associated with the object to be protected.
+ */
+- (void)addProtectionForKey:(NSString *)key;
 
 /**
  Removes the object for the specified key. This method blocks the calling thread until the object
