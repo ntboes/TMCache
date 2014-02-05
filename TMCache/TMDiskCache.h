@@ -282,14 +282,6 @@ typedef void (^TMDiskCacheObjectBlock)(TMDiskCache *cache, NSString *key, id <NS
  
  @param key The key associated with the object to be protected.
  */
-- (void)protectObjectForKey:(NSString *)key;
-
-/**
- Protects the object in the cache for the specified key. This method blocks the calling thread until
- the object has been stored.
- 
- @param key The key associated with the object to be protected.
- */
 - (void)addProtectionForKey:(NSString *)key;
 
 /**
